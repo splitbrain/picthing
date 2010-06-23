@@ -55,14 +55,15 @@ class Indexer:
                 relpath  = os.path.relpath(filepath,self.root)
 
                 meta = Metadata(filepath)
-                meta.read()
                 print meta.get_content()
 
                 # add to index
                 self.writer.update_document(
-                    path = unicode(relpath),
-                    time = os.path.getmtime(filepath)
-                    #FIXME add EXIF data here
+                    path    = unicode(relpath),
+                    time    = os.path.getmtime(filepath),
+                    title   = meta.get_content(),
+                    content = meta.get_title()
+                    #FIXME add more EXIF data here
                 )
 
         # save index
