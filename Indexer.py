@@ -5,15 +5,16 @@ import re
 import whoosh
 import whoosh.index
 import whoosh.fields
+import whoosh.qparser
 
 from Metadata import Metadata
 
 class Indexer:
 
-    index  = None
-    root   = None
-    writer = None
-    search = None
+    index    = None
+    root     = None
+    writer   = None
+    searcher = None
 
     def __init__(self, root):
         self.root = os.path.abspath(root)
@@ -30,15 +31,15 @@ class Indexer:
                 os.mkdir(idxdir)
             self.index = whoosh.index.create_in(idxdir, schema=self.get_schema())
 
-        self.writer = self.index.writer()
-        self.search = self.index.searcher()
+        self.writer   = self.index.writer()
+        self.searcher = self.index.searcher()
 
 
     def get_schema(self):
         return whoosh.fields.Schema(
             path    = whoosh.fields.ID(unique=True, stored=True),
             time    = whoosh.fields.STORED,
-            title   = whoosh.fields.TEXT,
+            title   = whoosh.fields.TEXT(stored=True),
             content = whoosh.fields.TEXT,
             tags    = whoosh.fields.KEYWORD(stored=True, lowercase=True, commas=True, scorable=True),
         )
@@ -69,6 +70,8 @@ class Indexer:
         # save index
         self.writer.commit()
 
-
-
+    def search(self,query):
+        mparser = whoosh.qparser.MultifieldParser(["title", "content"], schema=self.get_schema())
+        results = self.searcher.search(mparser.parse(query));
+        return results
 

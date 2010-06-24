@@ -13,3 +13,10 @@ x.scan_root()
 
 print str(x.index.doc_count()) + " documents in the index"
 
+"""
+res = x.search(u"olympus")
+print res
+
+for i, fields in enumerate(res):
+    print("%s. %r" % (i + 1, fields))
+"""
