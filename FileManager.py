@@ -2,9 +2,10 @@
 import os
 import gtk
 import re
+import gobject
 
 from Indexer import Indexer;
-
+from GeneratorTask import GeneratorTask;
 
 
 class FileManager:
@@ -17,12 +18,15 @@ class FileManager:
     root  = None
     index = None
 
+    thumbnailer = None
+
     def __init__(self,root):
         self.store = gtk.ListStore(str, str, gtk.gdk.Pixbuf, str)
         self.root  = root
         self.index = Indexer(self.root)
 
     def search(self,query):
+        self.stop_thumbnailer()
         self.store.clear()
         results = self.index.search(unicode(query))
 
@@ -36,13 +40,13 @@ class FileManager:
                 fields['path'],
                 self.get_icon(gtk.STOCK_FILE),
                 'jpg'])
+        self.start_thumbnailer()
 
     def browse(self,folder):
-        folder = folder.replace('..','')
+        self.stop_thumbnailer()
         self.store.clear()
 
-        print "browse "+folder;
-
+        folder = folder.replace('..','')
         full = os.path.join(self.root,folder)
         full = os.path.abspath(full)
         imgre = re.compile('\.jpe?g$',re.IGNORECASE)
@@ -58,7 +62,6 @@ class FileManager:
                         upper,
                         self.get_icon(gtk.STOCK_GO_UP),
                         'dir'])
-
 
         for fl in os.listdir(full):
             if fl[0] == '.':
@@ -80,6 +83,30 @@ class FileManager:
                     rel,
                     self.get_icon(gtk.STOCK_FILE),
                     'jpg'])
+        self.start_thumbnailer()
+
+
+
+    def start_thumbnailer(self):
+        self.stop_thumbnailer()
+        self.thumbnailer = GeneratorTask(self._create_thumbnails)
+        self.thumbnailer.start()
+
+    def stop_thumbnailer(self):
+        if self.thumbnailer is not None:
+            self.thumbnailer.stop()
+            self.thumbnailer.wait()
+            self.thumbnailer = None
+
+    def _create_thumbnails(self):
+        for row in self.store:
+            path  = row[self.COL_PATH]
+            ftype = row[self.COL_TYPE]
+            fn    = os.path.join(self.root,path)
+            if(ftype == 'jpg'):
+                buf = gtk.gdk.pixbuf_new_from_file_at_size(fn, 48, 48)
+                row[self.COL_PIXBUF] = buf
+            yield None
 
 
     def get_icon(self, name):

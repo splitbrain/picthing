@@ -86,6 +86,7 @@ class PicThing:
 
 
 if __name__ == "__main__":
+    gtk.gdk.threads_init()
     editor = PicThing()
     editor.window.show()
     gtk.main()
