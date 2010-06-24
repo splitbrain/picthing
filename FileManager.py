@@ -1,3 +1,9 @@
+""" Manage the ListStore behind the main icon view and all related functions
+
+    * file system browsing
+    * querying the index
+    * thumbnailing
+"""
 
 import os
 import gtk
@@ -25,7 +31,13 @@ class FileManager:
         self.root  = root
         self.index = Indexer(self.root)
 
+
     def search(self,query):
+        """ Search the index for the given query
+
+            query needs to be something the Whoosh query parser can parse,
+            otherwise Whoosh exceptions are bubbled up
+        """
         self.stop_thumbnailer()
         self.store.clear()
         results = self.index.search(unicode(query))
@@ -42,7 +54,13 @@ class FileManager:
                 'jpg'])
         self.start_thumbnailer()
 
+
     def browse(self,folder):
+        """ Browse the given folder
+
+        folder needs to exist and be relative to the library root,
+        otherwise a NoDirException is thrown
+        """
         self.stop_thumbnailer()
         self.store.clear()
 
@@ -86,19 +104,31 @@ class FileManager:
         self.start_thumbnailer()
 
 
-
     def start_thumbnailer(self):
+        """ Start thumbnailing for the current ListStore
+
+            Thumbnailing is done in a separate thread
+        """
         self.stop_thumbnailer()
         self.thumbnailer = GeneratorTask(self._create_thumbnails)
         self.thumbnailer.start()
 
     def stop_thumbnailer(self):
+        """ Stop any running thumbnailer
+
+            Always call this before the ListStore is cleared!
+        """
         if self.thumbnailer is not None:
             self.thumbnailer.stop()
             self.thumbnailer.wait()
             self.thumbnailer = None
 
     def _create_thumbnails(self):
+        """ The thumbnailing process
+
+            FIXME: reading addtional image info from exif might be
+            sensible here
+        """
         for row in self.store:
             path  = row[self.COL_PATH]
             ftype = row[self.COL_TYPE]
@@ -110,6 +140,8 @@ class FileManager:
 
 
     def get_icon(self, name):
+        """ Helper to load a stock icon
+        """
         theme = gtk.icon_theme_get_default()
         return theme.load_icon(name, 48, 0)
 

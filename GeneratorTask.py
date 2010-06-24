@@ -1,4 +1,8 @@
-""" http://unpythonic.blogspot.com/2007/08/using-threads-in-pygtk.html """
+""" Run a detached process based on a Generator
+
+Taken from  http://unpythonic.blogspot.com/2007/08/using-threads-in-pygtk.html
+and slightly modified
+"""
 
 import threading, thread
 import gobject, gtk
