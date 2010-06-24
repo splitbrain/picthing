@@ -42,7 +42,7 @@ class PicThing:
         query = querybox.get_text()
         query = query.strip()
 
-        m = re.search('^folder:("(["\S]*)")?$',query)
+        m = re.search('^folder:("([^"]*)")?$',query)
         if(m):
             query = m.group(2);
             self.filemgr.browse(query)

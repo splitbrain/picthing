@@ -70,11 +70,19 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <child>
-              <object class="GtkIconView" id="iconview">
+              <object class="GtkScrolledWindow" id="scrolledwindow1">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="model">dummy_store</property>
-                <signal name="item_activated" handler="action_iconclick"/>
+                <property name="hscrollbar_policy">automatic</property>
+                <property name="vscrollbar_policy">automatic</property>
+                <child>
+                  <object class="GtkIconView" id="iconview">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="model">dummy_store</property>
+                    <signal name="item_activated" handler="action_iconclick"/>
+                  </object>
+                </child>
               </object>
             </child>
             <child type="tab">
