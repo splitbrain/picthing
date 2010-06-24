@@ -2,8 +2,8 @@ import sys
 import gtk
 import re
 
-from FileManager import FileManager;
-
+from FileManager import FileManager, NoDirException;
+from whoosh.support.pyparsing import ParseException
 
 LIBRARY = "test"
 
@@ -37,21 +37,30 @@ class PicThing:
 
 
     def action_search(self,widget):
-        self.set_status("Searching...")
         querybox = self.builder.get_object("querybox")
+        self.set_status("Searching...")
+
         query = querybox.get_text()
         query = query.strip()
-
         m = re.search('^folder:("([^"]*)")?$',query)
-        if(m):
-            query = m.group(2);
-            self.filemgr.browse(query)
-        elif(query == ''):
-            self.filemgr.browse(query)
-        else:
-            self.filemgr.search(query)
 
-        self.set_status("search done")
+        try:
+            if(m):
+                query = m.group(2);
+                self.filemgr.browse(query)
+            elif(query == ''):
+                self.filemgr.browse(query)
+            else:
+                    self.filemgr.search(query)
+
+            self.set_status("okay")
+
+        except ParseException:
+            self.set_status("Couldn't parse query")
+        except KeyError:
+            self.set_status("Wrong field name")
+        except NoDirException:
+            self.set_status("No such directory")
 
 
     def action_iconclick(self,widget,item):

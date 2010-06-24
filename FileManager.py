@@ -48,7 +48,7 @@ class FileManager:
         imgre = re.compile('\.jpe?g$',re.IGNORECASE)
 
         if(not os.path.isdir(full)):
-            return
+            raise NoDirException("No such directory in library: "+folder)
 
         # add upper dir
         if(folder):
@@ -86,3 +86,6 @@ class FileManager:
         theme = gtk.icon_theme_get_default()
         return theme.load_icon(name, 48, 0)
 
+
+class NoDirException (StandardError):
+    pass
