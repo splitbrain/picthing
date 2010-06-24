@@ -38,6 +38,7 @@ class Indexer:
     def get_schema(self):
         return whoosh.fields.Schema(
             path    = whoosh.fields.ID(unique=True, stored=True),
+            folder  = whoosh.fields.TEXT,
             time    = whoosh.fields.STORED,
             title   = whoosh.fields.TEXT(stored=True),
             content = whoosh.fields.TEXT,
@@ -54,6 +55,7 @@ class Indexer:
 
                 filepath = os.path.join(directory,fn)
                 relpath  = os.path.relpath(filepath,self.root)
+                folder   = os.path.dirname(relpath)
 
                 meta = Metadata(filepath)
                 print meta.get_content()
@@ -61,6 +63,7 @@ class Indexer:
                 # add to index
                 self.writer.update_document(
                     path    = unicode(relpath),
+                    folder  = unicode(folder),
                     time    = os.path.getmtime(filepath),
                     title   = meta.get_content(),
                     content = meta.get_title()

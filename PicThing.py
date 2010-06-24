@@ -1,5 +1,6 @@
 import sys
 import gtk
+import re
 
 from FileManager import FileManager;
 
@@ -38,8 +39,36 @@ class PicThing:
     def action_search(self,widget):
         self.set_status("Searching...")
         querybox = self.builder.get_object("querybox")
-        self.filemgr.search(querybox.get_text())
+        query = querybox.get_text()
+        query = query.strip()
+
+        m = re.search('^folder:("(["\S]*)")?$',query)
+        if(m):
+            query = m.group(2);
+            self.filemgr.browse(query)
+        elif(query == ''):
+            self.filemgr.browse(query)
+        else:
+            self.filemgr.search(query)
+
         self.set_status("search done")
+
+
+    def action_iconclick(self,widget,item):
+        model = widget.get_model()
+        path  = model[item][self.filemgr.COL_PATH]
+        ftype = model[item][self.filemgr.COL_TYPE]
+
+        if(ftype == 'dir'):
+            if(path):
+                self.new_query('folder:"'+path+'"')
+            else:
+                self.new_query('')
+
+    def new_query(self,query):
+        querybox = self.builder.get_object("querybox")
+        querybox.set_text(query)
+        self.action_search(None)
 
 
     def set_status(self,text,context=1):

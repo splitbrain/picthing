@@ -1,6 +1,7 @@
 
 import os
 import gtk
+import re
 
 from Indexer import Indexer;
 
@@ -17,7 +18,7 @@ class FileManager:
     index = None
 
     def __init__(self,root):
-        self.store = gtk.ListStore(str, str, gtk.gdk.Pixbuf, int)
+        self.store = gtk.ListStore(str, str, gtk.gdk.Pixbuf, str)
         self.root  = root
         self.index = Indexer(self.root)
 
@@ -34,7 +35,52 @@ class FileManager:
                 title,
                 fields['path'],
                 self.get_icon(gtk.STOCK_FILE),
-                2])
+                'jpg'])
+
+    def browse(self,folder):
+        folder = folder.replace('..','')
+        self.store.clear()
+
+        print "browse "+folder;
+
+        full = os.path.join(self.root,folder)
+        full = os.path.abspath(full)
+        imgre = re.compile('\.jpe?g$',re.IGNORECASE)
+
+        if(not os.path.isdir(full)):
+            return
+
+        # add upper dir
+        if(folder):
+            upper = os.path.dirname(folder);
+            self.store.append([
+                        '..',
+                        upper,
+                        self.get_icon(gtk.STOCK_GO_UP),
+                        'dir'])
+
+
+        for fl in os.listdir(full):
+            if fl[0] == '.':
+                continue; #skip hidden files
+
+            fn    = os.path.join(full,fl)
+            rel   = os.path.relpath(fn,self.root)
+            title = os.path.basename(fn)
+
+            if(os.path.isdir(fn)):
+                self.store.append([
+                    title,
+                    rel,
+                    self.get_icon(gtk.STOCK_DIRECTORY),
+                    'dir'])
+            elif(imgre.search(fn)):
+                self.store.append([
+                    title,
+                    rel,
+                    self.get_icon(gtk.STOCK_FILE),
+                    'jpg'])
+
 
     def get_icon(self, name):
         theme = gtk.icon_theme_get_default()
