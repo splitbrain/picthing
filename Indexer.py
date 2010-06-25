@@ -66,7 +66,8 @@ class Indexer:
                     folder  = unicode(folder),
                     time    = os.path.getmtime(filepath),
                     title   = meta.get_content(),
-                    content = meta.get_title()
+                    content = meta.get_title(),
+                    tags    = meta.get_tags()
                     #FIXME add more EXIF data here
                 )
 

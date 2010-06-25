@@ -2,8 +2,9 @@ import sys
 import gtk
 import re
 
-from FileManager import FileManager, NoDirException;
+from FileManager import FileManager, NoDirException
 from whoosh.support.pyparsing import ParseException
+from Metadata import Metadata
 
 LIBRARY = "test"
 
@@ -34,7 +35,7 @@ class PicThing:
         self.iconview.set_pixbuf_column(self.filemgr.COL_PIXBUF)
         self.iconview.set_tooltip_column(self.filemgr.COL_PATH)
 
-
+        self.new_query('')
 
     def action_search(self,widget):
         querybox = self.builder.get_object("querybox")
@@ -73,6 +74,70 @@ class PicThing:
                 self.new_query('folder:"'+path+'"')
             else:
                 self.new_query('')
+        else:
+            self.builder.get_object('notebook').set_current_page(1)
+
+    def action_pageswitch(self,notebook, page, page_num):
+        print page_num
+        if(page_num == 1):
+            self.load_image()
+
+
+    def action_imgnext(self, button):
+        pos = self.get_currentpos()
+        pos = self.filemgr.get_nextimagepos(pos)
+
+        if(pos != None):
+            print "select next "+str(pos)
+            self.iconview.select_path(pos)
+            self.load_image()
+
+
+    def action_imgprev(self, button):
+        pos = self.get_currentpos()
+        pos = self.filemgr.get_previmagepos(pos)
+
+        if(pos != None):
+            print "select next "+str(pos)
+            self.iconview.select_path(pos)
+            self.load_image()
+
+
+    def get_currentpos(self):
+        """ return the number (position) of the currently selected icon
+
+            returns None if nothing is selected
+        """
+        pos = self.iconview.get_selected_items()
+
+        if(pos == None):
+            return None;
+        return pos[0][0] # array, tuple
+
+
+    def load_image(self):
+        panel = self.builder.get_object('imagepanel')
+        panel.hide()
+
+        pos = self.get_currentpos()
+        if(pos == None):
+            return
+        img = self.filemgr.get_itemat(pos)
+
+        if(img['ft'] == 'dir'):
+            return
+
+        pixmap = self.builder.get_object('image')
+        pixmap.set_from_file(img['fn'])
+
+        meta = Metadata(img['fn']);
+
+        self.builder.get_object('imgtitle').set_text(meta.get_title())
+        self.builder.get_object('imgcontent').set_text(meta.get_content())
+        self.builder.get_object('imgtags').set_text(meta.get_tags())
+
+        panel.show()
+
 
     def new_query(self,query):
         querybox = self.builder.get_object("querybox")

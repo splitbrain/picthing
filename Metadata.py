@@ -35,6 +35,12 @@ class Metadata(pyexiv2.ImageMetadata):
              'Exif.Image.XPTitle',
              'Xmp.dc.title'])
 
+    def get_tags(self):
+        """ Return tags of the picture as comma separated string"""
+        return self.find_data(
+            ['Iptc.Application2.Keywords',
+             'Exif.Image.XPKeywords',
+             'Exif.Category']);
 
     def find_data(self, taglist):
         """ Go through the list of given tags until one containing a value

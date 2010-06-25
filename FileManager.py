@@ -139,6 +139,55 @@ class FileManager:
             yield None
 
 
+    def get_itemat(self,pos):
+        row = self.store[pos];
+        path  = row[self.COL_PATH]
+        ftype = row[self.COL_TYPE]
+        fn    = os.path.join(self.root,path)
+
+        return {'fn':fn, 'ft': ftype}
+
+    def get_nextimagepos(self,pos):
+        """ Get the position of the next image (not dir) after the given
+            position. If the given positon is None, the search sats at the
+            beginning of the store
+
+            FIXME there is probably a much more elegant way doing the
+            whole iteration stuff, but I can't figure it out
+        """
+        if(pos == None):
+            pos = 0;
+        else:
+            pos = pos+1;
+
+        try:
+            rowiter = self.store.get_iter(pos);
+            while rowiter != None:
+                if(self.store.get_value(rowiter,self.COL_TYPE) == 'jpg'):
+                    return self.store.get_path(rowiter)[0];
+                self.store.iter_next(rowiter);
+        except ValueError: # we're out of range
+            pass
+        return None
+
+    def get_previmagepos(self,pos):
+        """ Get the position of the next image (not dir) before the given
+            position.
+
+            FIXME there is probably a much more elegant way. And I have no
+            idea how to iterate backwards anyway
+        """
+        while (pos >=0):
+            pos -= 1;
+            try:
+                rowiter = self.store.get_iter(pos);
+                if(self.store.get_value(rowiter,self.COL_TYPE) == 'jpg'):
+                    return self.store.get_path(rowiter)[0];
+            except ValueError: # we're out of range
+                pass
+        return None
+
+
     def get_icon(self, name):
         """ Helper to load a stock icon
         """
