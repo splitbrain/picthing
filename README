@@ -1,0 +1,11 @@
+This is my very first python project. It will become a simple image browser/tag editor/search thingy.
+
+Next steps:
+
+* make saving work
+* add config file for library path
+* make index update on save
+* make index update on browse
+* fix resizing of image
+* fix panel sizes in tab 2
+* add more exif data
