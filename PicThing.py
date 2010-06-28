@@ -14,7 +14,7 @@ class PicThing:
     builder  = None
     iconview = None
     filemgr  = None
-
+    meta     = None
 
     def on_window_destroy(self, widget, data=None):
         gtk.main_quit()
@@ -78,27 +78,27 @@ class PicThing:
             self.builder.get_object('notebook').set_current_page(1)
 
     def action_pageswitch(self,notebook, page, page_num):
-        print page_num
+        """ Signal handler. Activates when the notebok tab is switched """
         if(page_num == 1):
             self.load_image()
+        else:
+            self.meta = None
 
 
     def action_imgnext(self, button):
+        """ Navigate to the next image in icon view """
         pos = self.get_currentpos()
         pos = self.filemgr.get_nextimagepos(pos)
-
         if(pos != None):
-            print "select next "+str(pos)
             self.iconview.select_path(pos)
             self.load_image()
 
 
     def action_imgprev(self, button):
+        """ Navigate to the previous image in icon view """
         pos = self.get_currentpos()
         pos = self.filemgr.get_previmagepos(pos)
-
         if(pos != None):
-            print "select next "+str(pos)
             self.iconview.select_path(pos)
             self.load_image()
 
@@ -116,6 +116,9 @@ class PicThing:
 
 
     def load_image(self):
+        """ Load the next image to show """
+        self.save_image()
+
         panel = self.builder.get_object('imagepanel')
         panel.hide()
 
@@ -130,16 +133,25 @@ class PicThing:
         pixmap = self.builder.get_object('image')
         pixmap.set_from_file(img['fn'])
 
-        meta = Metadata(img['fn']);
-
-        self.builder.get_object('imgtitle').set_text(meta.get_title())
-        self.builder.get_object('imgcontent').set_text(meta.get_content())
-        self.builder.get_object('imgtags').set_text(meta.get_tags())
-
+        self.meta = Metadata(img['fn']);
+        self.builder.get_object('imgtitle').set_text(self.meta.get_title())
+        self.builder.get_object('imgcontent').set_text(self.meta.get_content())
+        self.builder.get_object('imgtags').set_text(self.meta.get_tags())
         panel.show()
+
+    def save_image(self):
+        """ Save metadata of the currently loaded image (if any) """
+        if(self.meta == None):
+            return
+        cnt = self.builder.get_object('imgcontent');
+        self.meta.set_title(   self.builder.get_object('imgtitle').get_text()   )
+        self.meta.set_content( cnt.get_text(cnt.get_start_iter(),cnt.get_end_iter()) )
+        self.meta.set_tags(    self.builder.get_object('imgtags').get_text()    )
+        self.meta.write()
 
 
     def new_query(self,query):
+        """ Set a new search or browse query and execute it """
         querybox = self.builder.get_object("querybox")
         querybox.set_text(query)
         self.action_search(None)

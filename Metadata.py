@@ -21,11 +21,21 @@ class Metadata(pyexiv2.ImageMetadata):
         """ Return the caption of the picture """
         return self.find_data(
             ['Iptc.Application2.Caption',
-             'Exif.Photo.UserComment'
+             'Exif.Photo.UserComment',
              'Exif.Image.XPComment',
              'Comment',
              'Exif.Image.ImageDescription',
              'Xmp.dc.description'])
+
+    def set_content(self, value):
+        """ Set the caption of the picture """
+        self.store_data(
+            ['Iptc.Application2.Caption',
+             'Exif.Photo.UserComment',
+             'Exif.Image.XPComment',
+             'Comment',
+             'Exif.Image.ImageDescription'],
+            value)
 
     def get_title(self):
         """ Return the title of the picture """
@@ -35,12 +45,27 @@ class Metadata(pyexiv2.ImageMetadata):
              'Exif.Image.XPTitle',
              'Xmp.dc.title'])
 
+    def set_title(self, value):
+        """ Set the title of the picture """
+        self.store_data(
+            ['Iptc.Application2.Headline',
+             'Exif.Image.XPTitle'],
+            value)
+
     def get_tags(self):
         """ Return tags of the picture as comma separated string"""
         return self.find_data(
             ['Iptc.Application2.Keywords',
              'Exif.Image.XPKeywords',
              'Exif.Category']);
+
+    def set_tags(self, value):
+        """ Set the given comma separated string of tags in the picture"""
+        self.store_data(
+            ['Iptc.Application2.Keywords',
+             'Exif.Image.XPKeywords'],
+            value, True)
+
 
     def find_data(self, taglist):
         """ Go through the list of given tags until one containing a value
@@ -71,4 +96,25 @@ class Metadata(pyexiv2.ImageMetadata):
             value = ''
 
         return value
+
+    def store_data(self, taglist, value, ismulti=False):
+        """ Store the given value in all given tags
+            when ismulti is true, value is treated as a comma separated
+            list and tried to be stored in a repeatable tag
+        """
+        for tag in taglist:
+            if tag.startswith('Iptc.'):
+                if(ismulti):
+                    vlist = value.split(',')
+                    vlist = map(str.strip,vlist)
+                    self[tag] = pyexiv2.IptcTag(tag, vlist)
+                else:
+                    self[tag] = pyexiv2.IptcTag(tag, [value])
+            elif tag.startswith('Exif.'):
+                self[tag] = pyexiv2.ExifTag(tag, value)
+            elif tag.startswith('Xmp.'):
+                self[tag] = pyexiv2.XmpTag(tag, value)
+
+
+
 
