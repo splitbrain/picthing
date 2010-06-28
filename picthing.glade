@@ -16,11 +16,11 @@
             <property name="visible">True</property>
             <property name="icon_size">1</property>
             <child>
-              <object class="GtkToolButton" id="toolbutton1">
+              <object class="GtkToolItem" id="place_librarypicker">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">Library</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-directory</property>
+                <child>
+                  <placeholder/>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>

@@ -31,7 +31,6 @@ class FileManager:
         self.root  = root
         self.index = Indexer(self.root)
 
-
     def search(self,query):
         """ Search the index for the given query
 

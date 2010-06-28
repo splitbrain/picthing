@@ -34,6 +34,12 @@ class Indexer:
         self.writer   = self.index.writer()
         self.searcher = self.index.searcher()
 
+    def close(self):
+        print "closing index"
+        del self.writer
+        del self.searcher
+        self.index.close()
+        del self.index
 
     def get_schema(self):
         return whoosh.fields.Schema(

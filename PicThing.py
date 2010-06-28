@@ -1,6 +1,8 @@
 import sys
 import gtk
 import re
+import ConfigParser
+import os
 
 from FileManager import FileManager, NoDirException
 from whoosh.support.pyparsing import ParseException
@@ -15,6 +17,7 @@ class PicThing:
     iconview = None
     filemgr  = None
     meta     = None
+    libs     = None
 
     def on_window_destroy(self, widget, data=None):
         gtk.main_quit()
@@ -27,15 +30,41 @@ class PicThing:
         self.window = self.builder.get_object("window")
         self.builder.connect_signals(self)
 
-        self.filemgr = FileManager(LIBRARY)
+        config = ConfigParser.ConfigParser()
+        config.read(['picthing.ini', os.path.expanduser('~/.picthing.ini')])
+        self.libs = config.items('libraries')
 
+        place   = self.builder.get_object("place_librarypicker")
+        libpick =  gtk.combo_box_new_text()
+        libpick.connect('changed',self.action_switchlibrary)
+        place.add(libpick)
+        libpick.show()
+        if(len(self.libs)):
+            for lib in self.libs:
+                libpick.append_text(lib[0])
+            libpick.set_active(0)
+        else:
+            #FIXME use some dialog here
+            sys.exit()
+
+
+
+    def action_switchlibrary(self, widget):
+        """ Load a new library """
+        library = self.libs[widget.get_active()]
+        print "loading library '"+library[0]+"' in '"+library[1]+"'"
+        self.meta     = None
+        self.builder.get_object('notebook').set_current_page(0)
+        if(self.filemgr != None):
+            self.filemgr.index.close();
+        self.filemgr  = FileManager(library[1])
         self.iconview = self.builder.get_object("iconview")
         self.iconview.set_model(self.filemgr.store)
         self.iconview.set_text_column(self.filemgr.COL_TITLE)
         self.iconview.set_pixbuf_column(self.filemgr.COL_PIXBUF)
         self.iconview.set_tooltip_column(self.filemgr.COL_PATH)
-
         self.new_query('')
+
 
     def action_search(self,widget):
         querybox = self.builder.get_object("querybox")
