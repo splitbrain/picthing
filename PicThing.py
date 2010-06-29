@@ -7,6 +7,7 @@ import os
 from FileManager import FileManager, NoDirException
 from whoosh.support.pyparsing import ParseException
 from Metadata import Metadata
+from ResizableImage import ResizableImage
 
 LIBRARY = "test"
 
@@ -18,6 +19,7 @@ class PicThing:
     filemgr  = None
     meta     = None
     libs     = None
+    image    = None
 
     def on_window_destroy(self, widget, data=None):
         gtk.main_quit()
@@ -47,6 +49,11 @@ class PicThing:
             #FIXME use some dialog here
             sys.exit()
 
+
+        # add image canvas
+        self.image = ResizableImage()
+        self.image.show()
+        self.builder.get_object("picframe").add(self.image)
 
 
     def action_switchlibrary(self, widget):
@@ -161,8 +168,8 @@ class PicThing:
         if(img['ft'] == 'dir'):
             return
 
-        pixmap = self.builder.get_object('image')
-        pixmap.set_from_file(img['fn'])
+        #pixmap = self.builder.get_object('image')
+        self.image.set_from_file(img['fn'])
 
         self.meta = Metadata(img['fn']);
         self.builder.get_object('imgtitle').set_text(self.meta.get_title())
