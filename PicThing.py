@@ -92,6 +92,8 @@ class PicThing:
         except NoDirException:
             self.set_status("No such directory")
 
+        self.builder.get_object('notebook').set_current_page(0)
+
 
     def action_iconclick(self,widget,item):
         model = widget.get_model()
@@ -177,6 +179,8 @@ class PicThing:
         self.meta.set_content( cnt.get_text(cnt.get_start_iter(),cnt.get_end_iter()) )
         self.meta.set_tags(    self.builder.get_object('imgtags').get_text()    )
         self.meta.write()
+        # update index with new data
+        self.filemgr.index.update_image(self.meta.filename)
 
 
     def new_query(self,query):

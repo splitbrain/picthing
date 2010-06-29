@@ -13,6 +13,7 @@ import pyexiv2
 class Metadata(pyexiv2.ImageMetadata):
 
     def __init__(self,filename):
+        self.filename = filename
         pyexiv2.ImageMetadata.__init__(self,filename)
         self.read()
 

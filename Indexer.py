@@ -14,7 +14,6 @@ class Indexer:
     index    = None
     root     = None
     writer   = None
-    searcher = None
 
     def __init__(self, root):
         self.root = os.path.abspath(root)
@@ -31,13 +30,10 @@ class Indexer:
                 os.mkdir(idxdir)
             self.index = whoosh.index.create_in(idxdir, schema=self.get_schema())
 
-        self.writer   = self.index.writer()
-        self.searcher = self.index.searcher()
 
     def close(self):
         print "closing index"
         del self.writer
-        del self.searcher
         self.index.close()
         del self.index
 
@@ -54,34 +50,51 @@ class Indexer:
     def scan_root(self):
         imgre = re.compile('\.jpe?g$',re.IGNORECASE)
 
+        self.writer   = self.index.writer()
         for directory, subdirs, files in os.walk(self.root):
             for fn in files:
                 if(not imgre.search(fn)):
                     continue
-
                 filepath = os.path.join(directory,fn)
-                relpath  = os.path.relpath(filepath,self.root)
-                folder   = os.path.dirname(relpath)
-
-                meta = Metadata(filepath)
-                print meta.get_content()
-
-                # add to index
-                self.writer.update_document(
-                    path    = unicode(relpath),
-                    folder  = unicode(folder),
-                    time    = os.path.getmtime(filepath),
-                    title   = meta.get_content(),
-                    content = meta.get_title(),
-                    tags    = meta.get_tags()
-                    #FIXME add more EXIF data here
-                )
-
-        # save index
+                self.update_image(filepath)
         self.writer.commit()
+        del self.writer
+
+
+    def update_image(self,filepath):
+        """ Adds or updates the given image in the index
+
+            Set commit to False and call index.commit() yourself
+            when doing batch operations
+        """
+        relpath  = os.path.relpath(filepath,self.root)
+        folder   = os.path.dirname(relpath)
+
+        meta = Metadata(filepath)
+
+        if not self.writer:
+            self.writer = self.index.writer()
+            commit      = True
+
+        # add to index
+        self.writer.update_document(
+            path    = unicode(relpath),
+            folder  = unicode(folder),
+            time    = os.path.getmtime(filepath),
+            title   = meta.get_content(),
+            content = meta.get_title(),
+            tags    = meta.get_tags()
+            #FIXME add more EXIF data here
+        )
+
+        if(commit):
+            self.writer.commit()
+            del self.writer
+
 
     def search(self,query):
-        mparser = whoosh.qparser.MultifieldParser(["title", "content"], schema=self.get_schema())
-        results = self.searcher.search(mparser.parse(query));
+        searcher = self.index.searcher()
+        mparser = whoosh.qparser.MultifieldParser(["title", "content", "tags"], schema=self.get_schema())
+        results = searcher.search(mparser.parse(query));
         return results
 
