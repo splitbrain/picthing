@@ -175,6 +175,7 @@ class PicThing:
         self.builder.get_object('imgtitle').set_text(self.meta.get_title())
         self.builder.get_object('imgcontent').set_text(self.meta.get_content())
         self.builder.get_object('imgtags').set_text(self.meta.get_tags())
+        self.builder.get_object('imgname').set_text(os.path.basename(img['fn']))
         panel.show()
 
     def save_image(self):
