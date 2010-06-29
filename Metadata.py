@@ -16,7 +16,14 @@ class Metadata(pyexiv2.ImageMetadata):
         self.filename = filename
         pyexiv2.ImageMetadata.__init__(self,filename)
         self.read()
+        self.modified = False
 
+
+    def conditional_write(self):
+        """ write metadata only if internal modified flag is set """
+        if(self.modified):
+            self.write()
+        return self.modified
 
     def get_content(self):
         """ Return the caption of the picture """
@@ -30,16 +37,19 @@ class Metadata(pyexiv2.ImageMetadata):
 
     def set_content(self, value):
         """ Set the caption of the picture """
-        self.store_data(
-            ['Iptc.Application2.Caption',
-             'Exif.Photo.UserComment',
-             'Exif.Image.XPComment',
-             'Comment',
-             'Exif.Image.ImageDescription'],
-            value)
+        if value != self.get_content():
+            self.modified = True
+            self.store_data(
+                ['Iptc.Application2.Caption',
+                 'Exif.Photo.UserComment',
+                 'Exif.Image.XPComment',
+                 'Comment',
+                 'Exif.Image.ImageDescription'],
+                value)
 
     def get_title(self):
         """ Return the title of the picture """
+
         return self.find_data(
             ['Iptc.Application2.Headline',
              'Iptc.Application2.ObjectName',
@@ -48,10 +58,12 @@ class Metadata(pyexiv2.ImageMetadata):
 
     def set_title(self, value):
         """ Set the title of the picture """
-        self.store_data(
-            ['Iptc.Application2.Headline',
-             'Exif.Image.XPTitle'],
-            value)
+        if value != self.get_title():
+            self.modified = True
+            self.store_data(
+                ['Iptc.Application2.Headline',
+                 'Exif.Image.XPTitle'],
+                value)
 
     def get_tags(self):
         """ Return tags of the picture as comma separated string"""
@@ -62,10 +74,12 @@ class Metadata(pyexiv2.ImageMetadata):
 
     def set_tags(self, value):
         """ Set the given comma separated string of tags in the picture"""
-        self.store_data(
-            ['Iptc.Application2.Keywords',
-             'Exif.Image.XPKeywords'],
-            value, True)
+        if value != self.get_tags():
+            self.modified = True
+            self.store_data(
+                ['Iptc.Application2.Keywords',
+                 'Exif.Image.XPKeywords'],
+                value, True)
 
 
     def find_data(self, taglist):

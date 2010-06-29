@@ -178,9 +178,9 @@ class PicThing:
         self.meta.set_title(   self.builder.get_object('imgtitle').get_text()   )
         self.meta.set_content( cnt.get_text(cnt.get_start_iter(),cnt.get_end_iter()) )
         self.meta.set_tags(    self.builder.get_object('imgtags').get_text()    )
-        self.meta.write()
-        # update index with new data
-        self.filemgr.index.update_image(self.meta.filename)
+        if self.meta.conditional_write():
+            # update index with new data
+            self.filemgr.index.update_image(self.meta.filename)
 
 
     def new_query(self,query):
