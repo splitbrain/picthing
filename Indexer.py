@@ -14,8 +14,11 @@ class Indexer:
     index    = None
     root     = None
     writer   = None
+    imgre    = None
+    scan     = False
 
     def __init__(self, root):
+        self.imgre = re.compile('\.jpe?g$',re.IGNORECASE)
         self.root = os.path.abspath(root)
         idxdir = os.path.join(self.root,".index")
 
@@ -47,18 +50,63 @@ class Indexer:
             tags    = whoosh.fields.KEYWORD(stored=True, lowercase=True, commas=True, scorable=True),
         )
 
-    def scan_root(self):
-        imgre = re.compile('\.jpe?g$',re.IGNORECASE)
+    def scan_start(self):
+        """ Prepare directory scanning. Run this before running the
+            scan iterator
+        """
+        self.writer = self.index.writer()
+        self.scan   = True
 
-        self.writer   = self.index.writer()
-        for directory, subdirs, files in os.walk(self.root):
+    def scan_stop(self):
+        """ Finish (or interrupt) a directory scan """
+        if self.writer:
+            print "index committed"
+            self.writer.commit()
+            del self.writer
+        self.scan   = False
+
+    def scan_iterator(self,base,onloop=None, onexit=None):
+        """ Iterate over all found images in the given base directory
+            and below and add them to the index
+
+            this is designed to be run from gobject.idle_add()
+
+            before starting this, you need to call scan_start()
+
+            scan_stop() is called automatically, but can also be used
+            to interupt the scan
+
+            base    - the full path of the directory to scan
+            onloop  - callback to run on each loop:
+                      func(path, isimage)
+            onexit  - callback when the run finishes or is aborted:
+                      func(wasabort)
+        """
+
+        for directory, subdirs, files in os.walk(base):
             for fn in files:
-                if(not imgre.search(fn)):
-                    continue
+                if not self.scan:
+                    if(callable(onexit)):
+                        onexit(True)
+                    self.scan_stop()
+                    yield False
+
                 filepath = os.path.join(directory,fn)
-                self.update_image(filepath)
-        self.writer.commit()
-        del self.writer
+                isimage = self.imgre.search(fn);
+
+                if(callable(onloop)):
+                    onloop(filepath, isimage)
+
+                if(isimage):
+                    self.update_image(filepath)
+
+                yield True
+
+        # we're through - stop the run
+        if(callable(onexit)):
+            onexit(False)
+        self.scan_stop()
+        yield False
 
 
     def update_image(self,filepath):
@@ -75,6 +123,8 @@ class Indexer:
         if not self.writer:
             self.writer = self.index.writer()
             commit      = True
+        else:
+            commit      = False
 
         # add to index
         self.writer.update_document(

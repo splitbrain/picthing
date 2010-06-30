@@ -3,14 +3,14 @@ import gtk
 import re
 import ConfigParser
 import os
+import gobject
 
 from FileManager import FileManager, NoDirException
 from whoosh.support.pyparsing import ParseException
 from Metadata import Metadata
 from ResizableImage import ResizableImage
 
-LIBRARY = "test"
-
+from time import sleep
 
 class PicThing:
     window   = None
@@ -205,6 +205,47 @@ class PicThing:
         status = self.builder.get_object("statusbar")
         status.push(context,text)
 
+
+
+    def action_scandialog(self,widget):
+        prg = self.builder.get_object("scandialog_progress")
+        prg.hide()
+        btn = self.builder.get_object("scandialog_execute")
+        btn.set_sensitive(True)
+
+        dialog = self.builder.get_object("scandialog")
+        dialog.run()
+
+    def action_scandialog_response(self,dialog,response_id):
+        print response_id
+        if response_id < 0:
+            dialog.hide()
+            # abort any running scan:
+            self.filemgr.index.scan_stop()
+            return
+
+        prg = self.builder.get_object("scandialog_progress")
+        prg.set_text('')
+        prg.show()
+        btn = self.builder.get_object("scandialog_execute")
+        btn.set_sensitive(False)
+
+        self.filemgr.index.scan_start()
+        scan = self.filemgr.index.scan_iterator(self.filemgr.index.root,
+                                                self.action_scan_loop,
+                                                self.action_scan_exit)
+        gobject.idle_add(scan.next)
+
+    def action_scan_loop(self,fn,isimg):
+        prg = self.builder.get_object("scandialog_progress")
+        prg.show()
+        prg.pulse()
+        if isimg:
+            prg.set_text(os.path.basename(fn))
+
+    def action_scan_exit(self,isabort):
+        dialog = self.builder.get_object("scandialog")
+        dialog.hide()
 
 if __name__ == "__main__":
     gtk.gdk.threads_init()

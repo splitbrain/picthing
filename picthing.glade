@@ -36,6 +36,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="has_focus">True</property>
+                    <property name="tooltip_text" translatable="yes">Browse and filter the library</property>
                     <property name="invisible_char">&#x25CF;</property>
                     <signal name="activate" handler="action_search"/>
                   </object>
@@ -49,10 +50,34 @@
             <child>
               <object class="GtkToolButton" id="toolbutton3">
                 <property name="visible">True</property>
+                <property name="tooltip_text" translatable="yes">Apply the current filter</property>
                 <property name="label" translatable="yes">Go</property>
                 <property name="use_underline">True</property>
-                <property name="stock_id">gtk-apply</property>
+                <property name="stock_id">gtk-ok</property>
                 <signal name="clicked" handler="action_search"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparatorToolItem" id="toolbutton1">
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="startscan">
+                <property name="visible">True</property>
+                <property name="tooltip_text" translatable="yes">Reindex the library folder</property>
+                <property name="label" translatable="yes">Reindex</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-execute</property>
+                <signal name="clicked" handler="action_scandialog"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -141,6 +166,7 @@
                                 <property name="left_padding">12</property>
                                 <child>
                                   <object class="GtkEntry" id="imgtitle">
+                                    <property name="width_request">300</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="invisible_char">&#x25CF;</property>
@@ -172,6 +198,7 @@
                                 <property name="left_padding">12</property>
                                 <child>
                                   <object class="GtkTextView" id="textview1">
+                                    <property name="width_request">300</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="border_width">2</property>
@@ -203,6 +230,7 @@
                                 <property name="left_padding">12</property>
                                 <child>
                                   <object class="GtkEntry" id="imgtags">
+                                    <property name="width_request">300</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="invisible_char">&#x25CF;</property>
@@ -349,4 +377,104 @@
   </object>
   <object class="GtkListStore" id="dummy_store"/>
   <object class="GtkTextBuffer" id="imgcontent"/>
+  <object class="GtkDialog" id="scandialog">
+    <property name="border_width">5</property>
+    <property name="title" translatable="yes">Scanning...</property>
+    <property name="modal">True</property>
+    <property name="window_position">center-on-parent</property>
+    <property name="default_width">320</property>
+    <property name="default_height">260</property>
+    <property name="type_hint">normal</property>
+    <signal name="response" handler="action_scandialog_response"/>
+    <child internal-child="vbox">
+      <object class="GtkVBox" id="dialog-vbox1">
+        <property name="visible">True</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">4</property>
+        <child>
+          <object class="GtkVBox" id="vbox3">
+            <property name="visible">True</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel" id="label4">
+                <property name="width_request">300</property>
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">This will search the complete library folder structure for photos and adds them to the search index.</property>
+                <property name="wrap">True</property>
+              </object>
+              <packing>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkProgressBar" id="scandialog_progress">
+                <property name="activity_mode">True</property>
+                <property name="pulse_step">0</property>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label11">
+                <property name="width_request">300</property>
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Depending on the size of your photo collection this can take while.</property>
+                <property name="wrap">True</property>
+              </object>
+              <packing>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="dialog-action_area1">
+            <property name="visible">True</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="button1">
+                <property name="label">gtk-cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="scandialog_execute">
+                <property name="label">gtk-execute</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-1">button1</action-widget>
+      <action-widget response="1">scandialog_execute</action-widget>
+    </action-widgets>
+  </object>
 </interface>
