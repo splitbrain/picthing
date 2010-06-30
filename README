@@ -2,6 +2,8 @@ This is my very first python project. It will become a simple image browser/tag 
 
 Next steps:
 
-* make index update on browse
 * fix panel sizes in tab 2
 * add more exif data
+* remove deleted data from index
+* add tag view
+* add calendar view

@@ -28,7 +28,7 @@ class FileManager:
 
     def __init__(self,root):
         self.store = gtk.ListStore(str, str, gtk.gdk.Pixbuf, str)
-        self.root  = root
+        self.root  = os.path.abspath(root)
         self.index = Indexer(self.root)
 
     def search(self,query):

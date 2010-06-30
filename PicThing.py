@@ -10,7 +10,6 @@ from whoosh.support.pyparsing import ParseException
 from Metadata import Metadata
 from ResizableImage import ResizableImage
 
-from time import sleep
 
 class PicThing:
     window   = None
@@ -208,8 +207,21 @@ class PicThing:
 
 
     def action_scandialog(self,widget):
+
+        query = self.builder.get_object("querybox").get_text()
+        m = re.search('folder:("([^"]*)")?$',query)
+
+        if(m):
+            base = m.group(2)
+            base = os.path.join(self.filemgr.root,base)
+        else:
+            base = self.filemgr.root
+        self.builder.get_object("scandialog_folder").set_text(base);
+
+
         prg = self.builder.get_object("scandialog_progress")
         prg.hide()
+        prg.set_pulse_step(0.01)
         btn = self.builder.get_object("scandialog_execute")
         btn.set_sensitive(True)
 
@@ -230,8 +242,10 @@ class PicThing:
         btn = self.builder.get_object("scandialog_execute")
         btn.set_sensitive(False)
 
+        base = self.builder.get_object("scandialog_folder").get_text();
+
         self.filemgr.index.scan_start()
-        scan = self.filemgr.index.scan_iterator(self.filemgr.index.root,
+        scan = self.filemgr.index.scan_iterator(base,
                                                 self.action_scan_loop,
                                                 self.action_scan_exit)
         gobject.idle_add(scan.next)
