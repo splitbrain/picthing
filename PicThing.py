@@ -159,6 +159,7 @@ class PicThing:
 
         panel = self.builder.get_object('imagepanel')
         panel.hide()
+        self.image.hide()
 
         pos = self.get_currentpos()
         if(pos == None):
@@ -168,15 +169,17 @@ class PicThing:
         if(img['ft'] == 'dir'):
             return
 
-        #pixmap = self.builder.get_object('image')
-        self.image.set_from_file(img['fn'])
-
         self.meta = Metadata(img['fn']);
         self.builder.get_object('imgtitle').set_text(self.meta.get_title())
         self.builder.get_object('imgcontent').set_text(self.meta.get_content())
         self.builder.get_object('imgtags').set_text(self.meta.get_tags())
         self.builder.get_object('imgname').set_text(os.path.basename(img['fn']))
         panel.show()
+
+        while gtk.events_pending():
+            gtk.main_iteration(False)
+        self.image.set_from_file(img['fn'])
+        self.image.show()
 
     def save_image(self):
         """ Save metadata of the currently loaded image (if any) """
