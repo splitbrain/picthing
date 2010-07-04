@@ -9,15 +9,19 @@ A list of available tag strings can be found at the following pages:
 """
 
 import pyexiv2
+import os
 
 class Metadata(pyexiv2.ImageMetadata):
+    modified = False
+    writable = False
+
 
     def __init__(self,filename):
         self.filename = filename
         pyexiv2.ImageMetadata.__init__(self,filename)
         self.read()
         self.modified = False
-
+        self.writable = os.access(filename,os.W_OK)
 
     def conditional_write(self):
         """ write metadata only if internal modified flag is set """

@@ -178,10 +178,23 @@ class PicThing:
             return
 
         self.meta = Metadata(img['fn']);
-        self.builder.get_object('imgtitle').set_text(self.meta.get_title())
-        self.builder.get_object('imgcontent').set_text(self.meta.get_content())
-        self.builder.get_object('imgtags').set_text(self.meta.get_tags())
-        self.builder.get_object('imgname').set_text(os.path.basename(img['fn']))
+
+        obj = self.builder.get_object('imgtitle')
+        obj.set_text(self.meta.get_title())
+        obj.set_sensitive(self.meta.writable)
+
+        obj = self.builder.get_object('imgcontent')
+        obj.set_text(self.meta.get_content())
+        obj = self.builder.get_object('imgcontentbox')
+        obj.set_sensitive(self.meta.writable)
+
+        obj = self.builder.get_object('imgtags')
+        obj.set_text(self.meta.get_tags())
+        obj.set_sensitive(self.meta.writable)
+
+        obj = self.builder.get_object('imgname')
+        obj.set_text(os.path.basename(img['fn']))
+
         panel.show()
 
         while gtk.events_pending():
