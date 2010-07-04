@@ -4,6 +4,7 @@ import re
 import ConfigParser
 import os
 import gobject
+import urllib
 
 from FileManager import FileManager, NoDirException
 from whoosh.support.pyparsing import ParseException
@@ -70,6 +71,8 @@ class PicThing:
         self.iconview.set_tooltip_column(self.filemgr.COL_PATH)
         self.new_query('')
 
+        self.filemgr.index.tagcloud()
+
 
     def action_search(self,widget):
         querybox = self.builder.get_object("querybox")
@@ -115,10 +118,13 @@ class PicThing:
 
     def action_pageswitch(self,notebook, page, page_num):
         """ Signal handler. Activates when the notebok tab is switched """
+
+        self.meta = None
         if(page_num == 1):
             self.load_image()
-        else:
-            self.meta = None
+        elif(page_num == 2):
+            self.builder.get_object('tagcloud').set_markup(self.filemgr.get_tagcloudstring())
+
 
 
     def action_imgnext(self, button):
@@ -138,6 +144,10 @@ class PicThing:
             self.iconview.select_path(pos)
             self.load_image()
 
+    def action_activate_link(self, widget, link):
+        """ handle clicks in label links """
+        link = urllib.unquote(link)
+        self.new_query(link)
 
     def get_currentpos(self):
         """ return the number (position) of the currently selected icon

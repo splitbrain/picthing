@@ -9,6 +9,8 @@ import os
 import gtk
 import re
 import gobject
+import urllib
+import cgi
 
 from Indexer import Indexer;
 from GeneratorTask import GeneratorTask;
@@ -139,11 +141,11 @@ class FileManager:
 
 
     def get_itemat(self,pos):
+        """ Return the item at the given postion """
         row = self.store[pos];
         path  = row[self.COL_PATH]
         ftype = row[self.COL_TYPE]
         fn    = os.path.join(self.root,path)
-
         return {'fn':fn, 'ft': ftype}
 
     def get_nextimagepos(self,pos):
@@ -186,12 +188,29 @@ class FileManager:
                 pass
         return None
 
-
     def get_icon(self, name):
-        """ Helper to load a stock icon
-        """
+        """ Helper to load a stock icon """
         theme = gtk.icon_theme_get_default()
         return theme.load_icon(name, 48, 0)
+
+    def get_tagcloudstring(self):
+        tags = self.index.tagcloud()
+
+        cloud = ''
+        for tag in sorted(tags):
+#            style = 'size="%d" underline="none" foreground="blck"' % (5 + (tags[tag]*10))
+#            cloud += '<a href="tags:'+urllib.quote('"'+tag+'"')+'" underline="none" foreground="black">'+cgi.escape(tag)+'</a> ';
+
+
+            cloud += '<a href="%s"><span size="%d" underline="none" foreground="black">%s</span></a> ' % (
+                         urllib.quote('"'+tag+'"'),
+                         (10 + (tags[tag]*5))*1000,
+                         cgi.escape(tag) )
+
+
+        return cloud
+
+
 
 
 class NoDirException (StandardError):

@@ -35,12 +35,16 @@ class Indexer:
 
 
     def close(self):
+        """ closes the index and deletes the associated objects, this should
+            unlock the index for sure
+        """
         print "closing index"
         del self.writer
         self.index.close()
         del self.index
 
     def get_schema(self):
+        """ returns the schema definition of the index """
         return whoosh.fields.Schema(
             path    = whoosh.fields.ID(unique=True, stored=True),
             folder  = whoosh.fields.TEXT,
@@ -131,8 +135,8 @@ class Indexer:
             path    = unicode(relpath),
             folder  = unicode(folder),
             time    = os.path.getmtime(filepath),
-            title   = meta.get_content(),
-            content = meta.get_title(),
+            title   = meta.get_title(),
+            content = meta.get_content(),
             tags    = meta.get_tags()
             #FIXME add more EXIF data here
         )
@@ -143,8 +147,37 @@ class Indexer:
 
 
     def search(self,query):
+        """ parse the given query, execute a search and return the results """
         searcher = self.index.searcher()
         mparser = whoosh.qparser.MultifieldParser(["title", "content", "tags"], schema=self.get_schema())
         results = searcher.search(mparser.parse(query));
         return results
+
+    def tagcloud(self):
+        """ Return the top 100 keywords from the index with their weighted
+            importance (9 = most common, 0 = rarest) as dictionary
+        """
+        reader = self.index.reader()
+        tags = reader.most_frequent_terms('tags',100);
+
+        maxi = tags[0][0];
+        mini = tags[-1][0];
+
+        # calculate tresholds
+        levels    = 9
+        tresholds = []
+        for i in range(len(tags)):
+            tresholds.append(pow(maxi - mini + 1, i/levels) + mini - 1)
+
+        # assign weights
+        weighted = {}
+        for (cnt, tag) in tags:
+            for i in range(len(tresholds)):
+                if(cnt <= tresholds[i]):
+                    weighted[tag] = i
+                    break
+                weighted[tag] = levels
+
+        return weighted
+
 

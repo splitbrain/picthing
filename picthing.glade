@@ -332,15 +332,10 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="label5">
+              <object class="GtkLabel" id="tagcloud">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">More to come.
-
-- tag cloud
-- calendar view
-- mass editing
-- ???
-- Profit</property>
+                <property name="use_markup">True</property>
+                <signal name="activate_link" handler="action_activate_link"/>
               </object>
               <packing>
                 <property name="position">2</property>
@@ -349,7 +344,7 @@
             <child type="tab">
               <object class="GtkLabel" id="label3">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">FIXME</property>
+                <property name="label" translatable="yes">Tags</property>
               </object>
               <packing>
                 <property name="position">2</property>
