@@ -4,8 +4,8 @@
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window">
     <property name="title" translatable="yes">PicThing</property>
-    <property name="default_width">700</property>
-    <property name="default_height">500</property>
+    <property name="default_width">900</property>
+    <property name="default_height">800</property>
     <signal name="destroy" handler="on_window_destroy"/>
     <child>
       <object class="GtkVBox" id="vbox1">
@@ -151,7 +151,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkVBox" id="vbox2">
+                      <object class="GtkVBox" id="imgdetails">
                         <property name="width_request">200</property>
                         <property name="visible">True</property>
                         <property name="orientation">vertical</property>
@@ -166,7 +166,7 @@
                                 <property name="left_padding">12</property>
                                 <child>
                                   <object class="GtkEntry" id="imgtitle">
-                                    <property name="width_request">300</property>
+                                    <property name="width_request">400</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="invisible_char">&#x25CF;</property>
@@ -271,7 +271,6 @@
                             <child>
                               <object class="GtkLabel" id="label9">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">X/X</property>
                               </object>
                               <packing>
                                 <property name="position">1</property>
@@ -309,7 +308,7 @@
                       </object>
                       <packing>
                         <property name="resize">True</property>
-                        <property name="shrink">True</property>
+                        <property name="shrink">False</property>
                       </packing>
                     </child>
                   </object>

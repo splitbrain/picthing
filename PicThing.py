@@ -54,7 +54,6 @@ class PicThing:
         self.image.show()
         self.builder.get_object("picframe").add(self.image)
 
-
     def action_switchlibrary(self, widget):
         """ Load a new library """
         library = self.libs[widget.get_active()]
